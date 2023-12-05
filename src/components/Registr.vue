@@ -7,12 +7,20 @@
           <v-flex xs12 sm8 md4>
             <v-card class="elevation-12">
               <v-toolbar dark color="primary">
-                <v-toolbar-title>Login form</v-toolbar-title>
+                <v-toolbar-title>Registr form</v-toolbar-title>
               </v-toolbar>
               <v-card>
-                <v-card-title class="headline"> Sign In </v-card-title>
+                <v-card-title class="headline">Sign Up</v-card-title>
                 <v-card-text>
-                  <v-form @submit.prevent="signIn">
+                  <v-form @submit.prevent="register">
+                    <v-text-field
+                      v-model="fullName"
+                      name="fullName"
+                      label="Full Name"
+                      type="text"
+                      placeholder="fullName"
+                      required
+                    />
                     <v-text-field v-model="email" label="Email" required />
                     <v-text-field
                       v-model="password"
@@ -20,18 +28,10 @@
                       type="password"
                       required
                     />
-                    <v-alert
-                      v-if="isError"
-                      type="error"
-                      icon="mdi-check-circle"
-                    >
-                      {{ errorMessage }}
-                    </v-alert>
-
-                    <!-- <div class="red--text">{{ errorMessage }}</div> -->
-                    <v-btn type="submit" color="primary"> Sign In </v-btn>
+                    <div class="red--text">{{ errorMessage }}</div>
+                    <v-btn type="submit" color="primary"> Sign Up </v-btn>
                     <div class="grey--text mt-4" @click="switchToRegistr">
-                      Registr
+                      Login
                     </div>
                   </v-form>
                 </v-card-text>
@@ -55,47 +55,36 @@ export default {
       fullName: "",
       baseURLGlobal: "http://localhost/Backend",
       isRegister: false,
-      isError: false,
       errorMessage: "",
-      stateObj: {
-        register: {
-          name: "Register",
-          message: "Aleady have an Acoount? login.",
-        },
-        login: {
-          name: "Login",
-          message: "Register",
-        },
-      },
     };
   },
   methods: {
-    signIn() {
-      const signInURL = `${this.baseURLGlobal}/signin.php`;
+    register() {
+      const signUpURL = `${this.baseURLGlobal}/signup.php`;
       axios
-        .post(signInURL, {
+        .post(signUpURL, {
+          fullName: this.fullName,
           email: this.email,
           password: this.password,
         })
         .then(({ data }) => {
-          console.log(data);
           if (data?.data?.id) {
-            console.log("Sign in successful:", data);
+            console.log("Sign up successful:", data);
             this.isError = false;
             this.$router.replace({
-              name: "chat",
-              params: { userData: data?.data },
+              name: "dashboard",
+              params: { fullName: this.fullName },
             });
-            localStorage.setItem("user", JSON.stringify(data?.data));
           } else {
             this.isError = true;
-            this.errorMessage = "Sign in failed!";
+            this.errorMessage = "Sign up failed!";
           }
         });
     },
     switchToRegistr() {
       this.$router.replace({
-        name: "registr",
+        name: "login",
+        params: { fullName: this.fullName },
       });
     },
   },
